@@ -43,6 +43,12 @@ def process_videos(*args):
             
             if not folder_path:
                 return f"[错误] Middle 文件夹 #{i+1} 的路径不能为空。"
+
+            # 【关键修复】: 规范化路径，处理 Windows 的反斜杠问题
+            # 1. 将所有反斜杠替换为正斜杠
+            # 2. 使用 os.path.normpath 确保路径格式正确
+            folder_path = os.path.normpath(folder_path_raw.replace("\\", "/"))
+
             
             params["middles"].append({
                 "path": folder_path,
@@ -59,7 +65,10 @@ def process_videos(*args):
         result_message = main.run_processing(params)
         return f"[成功] {result_message}"
     except Exception as e:
-        return f"[发生严重错误] {e}"
+        # 将详细错误信息返回给前端，方便调试
+        import traceback
+        error_details = traceback.format_exc()
+        return f"[发生严重错误]\n{e}\n\n详细信息:\n{error_details}"
 
 
 # --- Gradio 界面构建 ---
@@ -127,22 +136,6 @@ with gr.Blocks(theme=gr.themes.Soft(), title="自动化视频混剪工具") as a
                 gr.Markdown("## 4. 开始生成")
                 generate_button = gr.Button("🚀 生成视频", variant="primary", size="lg")
                 output_textbox = gr.Textbox(label="处理结果", lines=3, interactive=False)
-
-        # 侧边栏说明
-        with gr.Column(scale=1):
-            with gr.Group():
-                gr.Markdown(
-                    """
-                    ### 使用说明
-                    1.  **全局设置**: ...
-                    2.  **Hook & Code**: ...
-                    3.  **Middle 素材**:
-                        -   **素材文件夹路径**: 将包含视频素材的文件夹的**绝对路径**粘贴到输入框中。
-                        -   **截取秒数**: ...
-                        -   **片段数**: ...
-                    4.  **生成**: ...
-                    """
-                )
 
     # --- 事件处理逻辑 (无需更改) ---
     enable_hook_checkbox.change(lambda x: gr.update(visible=x), enable_hook_checkbox, hook_box)
