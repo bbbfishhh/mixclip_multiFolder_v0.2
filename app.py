@@ -47,7 +47,7 @@ def process_videos(*args):
             # 【关键修复】: 规范化路径，处理 Windows 的反斜杠问题
             # 1. 将所有反斜杠替换为正斜杠
             # 2. 使用 os.path.normpath 确保路径格式正确
-            folder_path = os.path.normpath(folder_path_raw.replace("\\", "/"))
+            folder_path = os.path.normpath(folder_path.replace("\\", "/"))
 
             
             params["middles"].append({
